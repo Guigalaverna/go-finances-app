@@ -70,12 +70,12 @@ export function Dashboard() {
           <UserInfo>
             <Photo
               source={{
-                uri: 'https://avatars.githubusercontent.com/u/49030804?v=4',
+                uri: 'https://github.com/Guigalaverna.png',
               }}
             />
             <User>
               <UserGreeting>Olá,</UserGreeting>
-              <UserName>Rodrigo</UserName>
+              <UserName>Guilherme</UserName>
             </User>
           </UserInfo>
 
