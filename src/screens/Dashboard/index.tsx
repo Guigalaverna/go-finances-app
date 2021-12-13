@@ -1,5 +1,6 @@
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import React, { useEffect, useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
 
 import { HighlightCard } from '../../components/HighlightCard';
 import {
@@ -61,9 +62,18 @@ export function Dashboard() {
     console.log(data);
   }
 
-  useEffect(() => {
-    loadTransactions();
-  }, []);
+  async function handleDeleteTransaction(id: string) {
+    const newData = data.filter(transaction => transaction.id !== id);
+
+    setData(newData);
+    await AsyncStorage.setItem(JSON.stringify(newData));
+  }
+
+  useFocusEffect(
+    useCallback(() => {
+      loadTransactions();
+    }, [])
+  );
 
   return (
     <Container>
@@ -114,7 +124,12 @@ export function Dashboard() {
         <TransactionList
           data={data}
           keyExtractor={item => item.id}
-          renderItem={({ item }) => <TransactionCard data={item} />}
+          renderItem={({ item }) => (
+            <TransactionCard
+              handleDeleteTransaction={() => handleDeleteTransaction(item.id)}
+              data={item}
+            />
+          )}
         />
       </Transactions>
     </Container>
