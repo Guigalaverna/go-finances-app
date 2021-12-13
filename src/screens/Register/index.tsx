@@ -104,6 +104,7 @@ export function Register() {
       Alert.alert('Sucesso', 'Transação cadastrada com sucesso!');
       handleClearForm();
       navigation.navigate('Listagem', {});
+      console.log(dataFormatted);
     } catch (error) {
       console.error(error);
       Alert.alert('Erro ao salvar', 'Tente novamente');
