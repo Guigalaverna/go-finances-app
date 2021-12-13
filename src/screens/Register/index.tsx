@@ -88,7 +88,7 @@ export function Register() {
 
     const formData = {
       ...form,
-      transactionType,
+      type: transactionType,
       category: category.key,
     };
 
