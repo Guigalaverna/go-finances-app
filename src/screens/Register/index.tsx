@@ -12,18 +12,12 @@ import { CategorySelectButton } from '../../components/Form/CategorySelectButton
 
 import { CategorySelect } from '../CategorySelect';
 
-import {
-  Container,
-  Header,
-  Title,
-  Form,
-  Fields,
-  TransactionsTypes,
-} from './styles';
+import { Container, Form, Fields, TransactionsTypes } from './styles';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { createTransactionObject } from '../../factories/createTransactionObject';
 
 import { useNavigation } from '@react-navigation/native';
+import { Header } from '../../components/Header';
 interface FormData {
   name: string;
   amount: string;
@@ -114,9 +108,7 @@ export function Register() {
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <Container>
-        <Header>
-          <Title>Cadastro</Title>
-        </Header>
+        <Header title="Cadastro" />
 
         <Form>
           <Fields>

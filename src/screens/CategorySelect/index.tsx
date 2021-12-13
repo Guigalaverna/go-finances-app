@@ -2,19 +2,11 @@ import React from 'react';
 import { FlatList } from 'react-native-gesture-handler';
 
 import { Button } from '../../components/Form/Button';
+import { Header } from '../../components/Header';
 
 import { categories } from '../../utils/categories';
 
-import {
-  Container,
-  Header,
-  Title,
-  Category,
-  Icon,
-  Name,
-  Separator,
-  Footer,
-} from './styles';
+import { Container, Category, Icon, Name, Separator, Footer } from './styles';
 
 interface Category {
   key: string;
@@ -30,23 +22,20 @@ interface Props {
 export function CategorySelect({
   category,
   setCategory,
-  closeSelectCategory
-} : Props ){
-
-  function handleCategorySelect(category: Category){
+  closeSelectCategory,
+}: Props) {
+  function handleCategorySelect(category: Category) {
     setCategory(category);
   }
 
   return (
     <Container>
-      <Header>
-        <Title>Categoria</Title>
-      </Header>
+      <Header title="Categoria" />
 
       <FlatList
         data={categories}
-        style={{ flex: 1, width: '100%'}}
-        keyExtractor={(item) => item.key}
+        style={{ flex: 1, width: '100%' }}
+        keyExtractor={item => item.key}
         renderItem={({ item }) => (
           <Category
             onPress={() => handleCategorySelect(item)}
@@ -60,11 +49,8 @@ export function CategorySelect({
       />
 
       <Footer>
-        <Button
-          title="Selecionar"
-          onPress={closeSelectCategory}
-        />
+        <Button title="Selecionar" onPress={closeSelectCategory} />
       </Footer>
     </Container>
-  )
+  );
 }
