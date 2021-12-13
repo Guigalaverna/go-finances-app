@@ -4,7 +4,7 @@ interface Transaction {
   id?: string | number[];
   name: string;
   amount: string;
-  transactionType: 'income' | 'outcome';
+  type: 'income' | 'outcome';
   category: string;
   date?: Date;
 }
