@@ -9,6 +9,8 @@ import {
   Icon,
   CategoryName,
   Date,
+  Header,
+  DeleteButton,
 } from './styles';
 
 export interface TransactionCardProps {
@@ -21,14 +23,20 @@ export interface TransactionCardProps {
 
 interface Props {
   data: TransactionCardProps;
+  handleDeleteTransaction?: () => void;
 }
 
-export function TransactionCard({ data }: Props) {
+export function TransactionCard({ data, handleDeleteTransaction }: Props) {
   const [category] = categories.filter(item => item.key === data.category);
 
   return (
     <Container>
-      <Title>{data.name}</Title>
+      <Header>
+        <Title>{data.name}</Title>
+        <DeleteButton onPress={handleDeleteTransaction}>
+          <Icon name="trash-2" />
+        </DeleteButton>
+      </Header>
 
       <Amount type={data.type}>
         {data.type === 'outcome' && '- '}
