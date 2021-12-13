@@ -22,6 +22,8 @@ import {
 } from './styles';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 import { createTransactionObject } from '../../factories/createTransactionObject';
+
+import { useNavigation } from '@react-navigation/native';
 interface FormData {
   name: string;
   amount: string;
@@ -41,7 +43,7 @@ export function Register() {
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   const AsyncStorage = useAsyncStorage('@gofinances:transactions');
-
+  const navigation = useNavigation();
   const [category, setCategory] = useState({
     key: 'category',
     name: 'Categoria',
@@ -50,6 +52,7 @@ export function Register() {
   const {
     control,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm({
     resolver: yupResolver(schema),
@@ -65,6 +68,15 @@ export function Register() {
 
   function handleCloseSelectCategoryModal() {
     setCategoryModalOpen(false);
+  }
+
+  function handleClearForm() {
+    setTransactionType('');
+    setCategory({
+      key: 'category',
+      name: 'Categoria',
+    });
+    reset();
   }
 
   async function handleRegister(form: FormData) {
@@ -90,28 +102,13 @@ export function Register() {
 
       await AsyncStorage.setItem(JSON.stringify(dataFormatted));
       Alert.alert('Sucesso', 'Transação cadastrada com sucesso!');
+      handleClearForm();
+      navigation.navigate('Listagem', {});
     } catch (error) {
       console.error(error);
       Alert.alert('Erro ao salvar', 'Tente novamente');
     }
   }
-
-  useEffect(() => {
-    async function loadData() {
-      const data = await AsyncStorage.getItem();
-
-      if (data) {
-        console.log(JSON.parse(data));
-      }
-    }
-
-    async function clearStorage() {
-      await AsyncStorage.removeItem();
-    }
-
-    // clearStorage();
-    loadData();
-  }, []);
 
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
