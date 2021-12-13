@@ -1,12 +1,15 @@
-import React, { useState } from 'react';
-
+import React, { useEffect, useState } from 'react';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import { useFocusEffect } from '@react-navigation/native';
+
+import { VictoryPie } from 'victory-native';
+
 import { Header } from '../../components/Header';
-import { History, HistoryCard } from '../../components/History';
-import { Container } from './styles';
+import { HistoryCard } from '../../components/HistoryCard';
 import { categories } from '../../utils/categories';
-import { FlatList } from 'react-native';
+
+import { Container, Content, ChartContainer } from './styles';
+import { RFValue } from 'react-native-responsive-fontsize';
+import theme from '../../global/styles/theme';
 
 interface Transaction {
   id: string;
@@ -20,35 +23,31 @@ interface Transaction {
 interface CategoryData {
   key: string;
   name: string;
-  sum: string;
+  sum: number;
+  formattedSum: string;
+  percent: string;
 }
 
 export function Summary() {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [totalByCategories, setTotalByCategories] = useState<CategoryData[]>(
     []
   );
 
   const AsyncStorage = useAsyncStorage('@gofinances:transactions');
 
-  useFocusEffect(
-    React.useCallback(() => {
-      async function loadData() {
-        const data = await AsyncStorage.getItem();
-        const parsedData = data ? JSON.parse(data) : [];
+  async function loadData() {
+    const response = await AsyncStorage.getItem();
+    const responseFormatted = response ? JSON.parse(response) : [];
 
-        setTransactions(parsedData);
-        sumByCategory();
-      }
+    const expensives = responseFormatted.filter(
+      (expensive: Transaction) => expensive.type === 'outcome'
+    );
 
-      loadData();
-    }, [])
-  );
-
-  function sumByCategory() {
-    // sum all outcomes by category
-    const allOutcomeTransactions = transactions.filter(
-      transaction => transaction.type === 'outcome'
+    const expensivesTotal = expensives.reduce(
+      (acumullator: number, expensive: Transaction) => {
+        return acumullator + Number(expensive.amount);
+      },
+      0
     );
 
     const totalByCategory: CategoryData[] = [];
@@ -56,45 +55,70 @@ export function Summary() {
     categories.forEach(category => {
       let categorySum = 0;
 
-      allOutcomeTransactions.forEach(transaction => {
-        if (transaction.category === category.key) {
-          categorySum += Number(transaction.amount);
+      expensives.forEach((expensive: Transaction) => {
+        if (expensive.category === category.key) {
+          categorySum += Number(expensive.amount);
         }
       });
 
       if (categorySum > 0) {
+        const totalFormatted = categorySum.toLocaleString('pt-BR', {
+          style: 'currency',
+          currency: 'BRL',
+        });
+
+        const percent = `${((categorySum / expensivesTotal) * 100).toFixed(
+          0
+        )}%`;
+
         totalByCategory.push({
           key: category.key,
           name: category.name,
-          sum: formatAmount(categorySum),
+          sum: categorySum,
+          formattedSum: totalFormatted,
+          percent,
         });
       }
     });
 
     setTotalByCategories(totalByCategory);
-    console.log(totalByCategory);
   }
 
-  function formatAmount(amount: number) {
-    return new Intl.NumberFormat('pt-BR', {
-      style: 'currency',
-      currency: 'BRL',
-    }).format(amount);
-  }
+  useEffect(() => {
+    loadData();
+  }, []);
 
   return (
     <Container>
       <Header title="Resumo por categoria" />
 
-      <History>
-        {totalByCategories?.map(category => (
+      <Content contentContainerStyle={{ padding: RFValue(24) }}>
+        <ChartContainer>
+          <VictoryPie
+            data={totalByCategories}
+            colorScale={totalByCategories.map(
+              category => categories.find(c => c.key === category.key)?.color!
+            )}
+            style={{
+              labels: {
+                fontSize: RFValue(18),
+                fontWeight: 'bold',
+                fill: theme.colors.shape,
+              },
+            }}
+            labelRadius={50}
+            x="percent"
+            y="sum"
+          />
+        </ChartContainer>
+        {totalByCategories.map(category => (
           <HistoryCard
             key={category.key}
             category={category.key}
-            amount={category.sum}
+            amount={category.formattedSum}
           />
         ))}
-      </History>
+      </Content>
     </Container>
   );
 }
