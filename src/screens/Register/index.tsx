@@ -5,7 +5,6 @@ import { yupResolver } from '@hookform/resolvers/yup';
 
 import { useForm } from 'react-hook-form';
 
-import { Input } from '../../components/Form/Input';
 import { InputForm } from '../../components/Form/InputForm';
 import { Button } from '../../components/Form/Button';
 import { TransactionTypeButton } from '../../components/Form/TransactionTypeButton';
@@ -22,7 +21,7 @@ import {
   TransactionsTypes,
 } from './styles';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-
+import { createTransactionObject } from '../../factories/createTransactionObject';
 interface FormData {
   name: string;
   amount: string;
@@ -36,7 +35,9 @@ const schema = Yup.object().shape({
 });
 
 export function Register() {
-  const [transactionType, setTransactionType] = useState('');
+  const [transactionType, setTransactionType] = useState<
+    'income' | 'outcome' | ''
+  >('');
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
 
   const AsyncStorage = useAsyncStorage('@gofinances:transactions');
@@ -73,9 +74,8 @@ export function Register() {
     if (category.key === 'category')
       return Alert.alert('Campo em branco', 'Selecione uma categoria');
 
-    const newTransaction = {
-      name: form.name,
-      amount: form.amount,
+    const formData = {
+      ...form,
       transactionType,
       category: category.key,
     };
@@ -84,9 +84,12 @@ export function Register() {
       const data = await AsyncStorage.getItem();
       const currentTransactions = data ? JSON.parse(data) : [];
 
+      const newTransaction = createTransactionObject(formData);
+
       const dataFormatted = [...currentTransactions, newTransaction];
 
       await AsyncStorage.setItem(JSON.stringify(dataFormatted));
+      Alert.alert('Sucesso', 'Transação cadastrada com sucesso!');
     } catch (error) {
       console.error(error);
       Alert.alert('Erro ao salvar', 'Tente novamente');
@@ -102,6 +105,11 @@ export function Register() {
       }
     }
 
+    async function clearStorage() {
+      await AsyncStorage.removeItem();
+    }
+
+    // clearStorage();
     loadData();
   }, []);
 
