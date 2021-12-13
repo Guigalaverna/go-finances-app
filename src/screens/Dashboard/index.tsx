@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator } from 'react-native';
+import { ActivityIndicator, Alert } from 'react-native';
 import { useAsyncStorage } from '@react-native-async-storage/async-storage';
 
 import { useFocusEffect } from '@react-navigation/native';
@@ -151,16 +151,20 @@ export function Dashboard() {
     setIsLoading(false);
   }
 
-  // async function handleDeleteTransaction(id: string) {
-  //   const previousTransactions = transactions;
+  async function handleDeleteTransaction(id: string) {
+    // Alert.alert(`Você deseja mesmo deletar: ${String()}`)
 
-  //   const updatedTransactions = previousTransactions.filter(
-  //     prevTransaction => prevTransaction.id !== id
-  //   );
+    const response = await AsyncStorage.getItem();
+    const prevTransactions = response ? JSON.parse(response) : [];
 
-  //   setTransactions(updatedTransactions);
-  //   await AsyncStorage.setItem(JSON.stringify(updatedTransactions));
-  // }
+    const filteredTransactions = prevTransactions.filter(
+      (transaction: DataListProps) => transaction.id !== id
+    );
+
+    setTransactions(filteredTransactions);
+    await AsyncStorage.setItem(JSON.stringify(filteredTransactions));
+    loadTransactions();
+  }
 
   useFocusEffect(
     useCallback(() => {
