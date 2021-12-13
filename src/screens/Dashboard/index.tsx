@@ -151,9 +151,16 @@ export function Dashboard() {
     setIsLoading(false);
   }
 
-  useEffect(() => {
-    loadTransactions();
-  }, []);
+  // async function handleDeleteTransaction(id: string) {
+  //   const previousTransactions = transactions;
+
+  //   const updatedTransactions = previousTransactions.filter(
+  //     prevTransaction => prevTransaction.id !== id
+  //   );
+
+  //   setTransactions(updatedTransactions);
+  //   await AsyncStorage.setItem(JSON.stringify(updatedTransactions));
+  // }
 
   useFocusEffect(
     useCallback(() => {
@@ -214,7 +221,14 @@ export function Dashboard() {
             <TransactionList
               data={transactions}
               keyExtractor={item => item.id}
-              renderItem={({ item }) => <TransactionCard data={item} />}
+              renderItem={({ item }) => (
+                <TransactionCard
+                  handleDeleteTransaction={() =>
+                    handleDeleteTransaction(item.id)
+                  }
+                  data={item}
+                />
+              )}
             />
           </Transactions>
         </>

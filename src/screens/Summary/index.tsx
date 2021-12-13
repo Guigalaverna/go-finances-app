@@ -7,8 +7,21 @@ import { Header } from '../../components/Header';
 import { HistoryCard } from '../../components/HistoryCard';
 import { categories } from '../../utils/categories';
 
-import { Container, Content, ChartContainer } from './styles';
+import {
+  Container,
+  Content,
+  ChartContainer,
+  MonthSelect,
+  MonthSelectButton,
+  MonthSelectIcon,
+  Month,
+} from './styles';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+
+import { addMonths, subMonths, format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
+
 import theme from '../../global/styles/theme';
 
 interface Transaction {
@@ -29,20 +42,31 @@ interface CategoryData {
 }
 
 export function Summary() {
+  const [selectedDate, setSelectedDate] = useState(new Date());
   const [totalByCategories, setTotalByCategories] = useState<CategoryData[]>(
     []
   );
 
   const AsyncStorage = useAsyncStorage('@gofinances:transactions');
 
+  function handleChangeCurrentMonth(action: 'next' | 'previous') {
+    if (action === 'next') {
+      setSelectedDate(addMonths(selectedDate, 1));
+    } else {
+      setSelectedDate(subMonths(selectedDate, 1));
+    }
+  }
+
   async function loadData() {
     const response = await AsyncStorage.getItem();
     const responseFormatted = response ? JSON.parse(response) : [];
 
     const expensives = responseFormatted.filter(
-      (expensive: Transaction) => expensive.type === 'outcome'
+      (expensive: Transaction) =>
+        expensive.type === 'outcome' &&
+        new Date(expensive.date).getMonth() === selectedDate.getMonth() &&
+        new Date(expensive.date).getFullYear() === selectedDate.getFullYear()
     );
-
     const expensivesTotal = expensives.reduce(
       (acumullator: number, expensive: Transaction) => {
         return acumullator + Number(expensive.amount);
@@ -86,13 +110,32 @@ export function Summary() {
 
   useEffect(() => {
     loadData();
-  }, []);
+  }, [selectedDate]);
 
   return (
     <Container>
       <Header title="Resumo por categoria" />
 
-      <Content contentContainerStyle={{ padding: RFValue(24) }}>
+      <Content
+        contentContainerStyle={{
+          paddingHorizontal: 24,
+          paddingBottom: useBottomTabBarHeight(),
+        }}
+      >
+        <MonthSelect>
+          <MonthSelectButton
+            onPress={() => handleChangeCurrentMonth('previous')}
+          >
+            <MonthSelectIcon name="chevron-left" />
+          </MonthSelectButton>
+
+          <Month>{format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}</Month>
+
+          <MonthSelectButton onPress={() => handleChangeCurrentMonth('next')}>
+            <MonthSelectIcon name="chevron-right" />
+          </MonthSelectButton>
+        </MonthSelect>
+
         <ChartContainer>
           <VictoryPie
             data={totalByCategories}
