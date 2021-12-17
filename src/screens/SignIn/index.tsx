@@ -13,8 +13,24 @@ import Logo from "../../assets/logo.svg";
 
 import { RFValue } from "react-native-responsive-fontsize";
 import { SocialLoginButton } from "../../components/SocialLoginButton";
+import { useAuth } from "../../hooks/useAuth";
+import { Alert } from "react-native";
 
 export function SignIn() {
+  const { signInWithGoogle, signInWithApple } = useAuth();
+
+  async function handleSignInWithGoogle() {
+    try {
+      await signInWithGoogle();
+    } catch (error: any) {
+      Alert.alert(
+        "Erro ao fazer login",
+        "Ocorreu um erro ao fazer login com Google"
+      );
+      throw new Error(error);
+    }
+  }
+
   return (
     <Container>
       <Header>
@@ -34,8 +50,11 @@ export function SignIn() {
       </Header>
       <Footer>
         <FooterContent>
-          <SocialLoginButton provider="google" />
-          <SocialLoginButton provider="apple" />
+          <SocialLoginButton
+            onPress={handleSignInWithGoogle}
+            provider="google"
+          />
+          <SocialLoginButton onPress={signInWithApple} provider="apple" />
         </FooterContent>
       </Footer>
     </Container>
