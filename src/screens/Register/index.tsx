@@ -1,46 +1,50 @@
-import React, { useState } from 'react';
-import { Modal, TouchableWithoutFeedback, Keyboard, Alert } from 'react-native';
-import * as Yup from 'yup';
-import { yupResolver } from '@hookform/resolvers/yup';
+import React, { useState } from "react";
+import { Modal, TouchableWithoutFeedback, Keyboard, Alert } from "react-native";
+import * as Yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
 
-import { useForm } from 'react-hook-form';
+import { useForm } from "react-hook-form";
 
-import { InputForm } from '../../components/Form/InputForm';
-import { Button } from '../../components/Form/Button';
-import { TransactionTypeButton } from '../../components/Form/TransactionTypeButton';
-import { CategorySelectButton } from '../../components/Form/CategorySelectButton';
+import { InputForm } from "../../components/Form/InputForm";
+import { Button } from "../../components/Form/Button";
+import { TransactionTypeButton } from "../../components/Form/TransactionTypeButton";
+import { CategorySelectButton } from "../../components/Form/CategorySelectButton";
 
-import { CategorySelect } from '../CategorySelect';
+import { CategorySelect } from "../CategorySelect";
 
-import { Container, Form, Fields, TransactionsTypes } from './styles';
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
-import { createTransactionObject } from '../../factories/createTransactionObject';
+import { Container, Form, Fields, TransactionsTypes } from "./styles";
+import { useAsyncStorage } from "@react-native-async-storage/async-storage";
+import { createTransactionObject } from "../../factories/createTransactionObject";
 
-import { useNavigation } from '@react-navigation/native';
-import { Header } from '../../components/Header';
+import { useNavigation } from "@react-navigation/native";
+import { Header } from "../../components/Header";
+import { useAuth } from "../../hooks/useAuth";
 interface FormData {
   name: string;
   amount: string;
 }
 
 const schema = Yup.object().shape({
-  name: Yup.string().required('Nome é obrigatório'),
+  name: Yup.string().required("Nome é obrigatório"),
   amount: Yup.number()
-    .typeError('Informe um valor númerico')
-    .positive('O valor não pode ser negativo'),
+    .typeError("Informe um valor númerico")
+    .positive("O valor não pode ser negativo"),
 });
 
 export function Register() {
   const [transactionType, setTransactionType] = useState<
-    'income' | 'outcome' | ''
-  >('');
+    "income" | "outcome" | ""
+  >("");
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
+  const { user } = useAuth();
 
-  const AsyncStorage = useAsyncStorage('@gofinances:transactions');
+  const AsyncStorage = useAsyncStorage(
+    `@gofinances:transactions_user:${user?.id}`
+  );
   const navigation = useNavigation();
   const [category, setCategory] = useState({
-    key: 'category',
-    name: 'Categoria',
+    key: "category",
+    name: "Categoria",
   });
 
   const {
@@ -52,7 +56,7 @@ export function Register() {
     resolver: yupResolver(schema),
   });
 
-  function handleTransactionsTypeSelect(type: 'income' | 'outcome') {
+  function handleTransactionsTypeSelect(type: "income" | "outcome") {
     setTransactionType(type);
   }
 
@@ -65,20 +69,20 @@ export function Register() {
   }
 
   function handleClearForm() {
-    setTransactionType('');
+    setTransactionType("");
     setCategory({
-      key: 'category',
-      name: 'Categoria',
+      key: "category",
+      name: "Categoria",
     });
     reset();
   }
 
   async function handleRegister(form: FormData) {
     if (!transactionType)
-      return Alert.alert('Campo em branco', 'Selecione o tipo da transação');
+      return Alert.alert("Campo em branco", "Selecione o tipo da transação");
 
-    if (category.key === 'category')
-      return Alert.alert('Campo em branco', 'Selecione uma categoria');
+    if (category.key === "category")
+      return Alert.alert("Campo em branco", "Selecione uma categoria");
 
     const formData = {
       ...form,
@@ -95,13 +99,13 @@ export function Register() {
       const dataFormatted = [...currentTransactions, newTransaction];
 
       await AsyncStorage.setItem(JSON.stringify(dataFormatted));
-      Alert.alert('Sucesso', 'Transação cadastrada com sucesso!');
+      Alert.alert("Sucesso", "Transação cadastrada com sucesso!");
       handleClearForm();
-      navigation.navigate('Listagem', {});
+      navigation.navigate("Listagem", {});
       console.log(dataFormatted);
     } catch (error) {
       console.error(error);
-      Alert.alert('Erro ao salvar', 'Tente novamente');
+      Alert.alert("Erro ao salvar", "Tente novamente");
     }
   }
 
@@ -133,14 +137,14 @@ export function Register() {
               <TransactionTypeButton
                 type="income"
                 title="Entrada"
-                onPress={() => handleTransactionsTypeSelect('income')}
-                isActive={transactionType === 'income'}
+                onPress={() => handleTransactionsTypeSelect("income")}
+                isActive={transactionType === "income"}
               />
               <TransactionTypeButton
                 type="outcome"
                 title="Saída"
-                onPress={() => handleTransactionsTypeSelect('outcome')}
-                isActive={transactionType === 'outcome'}
+                onPress={() => handleTransactionsTypeSelect("outcome")}
+                isActive={transactionType === "outcome"}
               />
             </TransactionsTypes>
 

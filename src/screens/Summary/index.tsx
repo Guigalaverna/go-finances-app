@@ -1,11 +1,11 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import React, { useCallback, useEffect, useState } from "react";
+import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 
-import { VictoryPie } from 'victory-native';
+import { VictoryPie } from "victory-native";
 
-import { Header } from '../../components/Header';
-import { HistoryCard } from '../../components/HistoryCard';
-import { categories } from '../../utils/categories';
+import { Header } from "../../components/Header";
+import { HistoryCard } from "../../components/HistoryCard";
+import { categories } from "../../utils/categories";
 
 import {
   Container,
@@ -15,24 +15,25 @@ import {
   MonthSelectButton,
   MonthSelectIcon,
   Month,
-} from './styles';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
+} from "./styles";
+import { RFValue } from "react-native-responsive-fontsize";
+import { useBottomTabBarHeight } from "@react-navigation/bottom-tabs";
 
-import { addMonths, subMonths, format } from 'date-fns';
-import { ptBR } from 'date-fns/locale';
+import { addMonths, subMonths, format } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
-import theme from '../../global/styles/theme';
-import { ActivityIndicator } from 'react-native';
-import { LoadContainer } from '../Dashboard/styles';
-import { useFocusEffect } from '@react-navigation/native';
+import theme from "../../global/styles/theme";
+import { ActivityIndicator } from "react-native";
+import { LoadContainer } from "../Dashboard/styles";
+import { useFocusEffect } from "@react-navigation/native";
+import { useAuth } from "../../hooks/useAuth";
 
 interface Transaction {
   id: string;
   name: string;
   amount: string;
   category: string;
-  type: 'income' | 'outcome';
+  type: "income" | "outcome";
   date: Date;
 }
 
@@ -50,12 +51,15 @@ export function Summary() {
   const [totalByCategories, setTotalByCategories] = useState<CategoryData[]>(
     []
   );
+  const { user } = useAuth();
 
-  const AsyncStorage = useAsyncStorage('@gofinances:transactions');
+  const AsyncStorage = useAsyncStorage(
+    `@gofinances:transactions_user:${user?.id}`
+  );
 
-  function handleChangeCurrentMonth(action: 'next' | 'previous') {
+  function handleChangeCurrentMonth(action: "next" | "previous") {
     setIsLoading(true);
-    if (action === 'next') {
+    if (action === "next") {
       setSelectedDate(addMonths(selectedDate, 1));
     } else {
       setSelectedDate(subMonths(selectedDate, 1));
@@ -68,7 +72,7 @@ export function Summary() {
 
     const expensives = responseFormatted.filter(
       (expensive: Transaction) =>
-        expensive.type === 'outcome' &&
+        expensive.type === "outcome" &&
         new Date(expensive.date).getMonth() === selectedDate.getMonth() &&
         new Date(expensive.date).getFullYear() === selectedDate.getFullYear()
     );
@@ -91,9 +95,9 @@ export function Summary() {
       });
 
       if (categorySum > 0) {
-        const totalFormatted = categorySum.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
+        const totalFormatted = categorySum.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
         });
 
         const percent = `${((categorySum / expensivesTotal) * 100).toFixed(
@@ -138,17 +142,17 @@ export function Summary() {
           >
             <MonthSelect>
               <MonthSelectButton
-                onPress={() => handleChangeCurrentMonth('previous')}
+                onPress={() => handleChangeCurrentMonth("previous")}
               >
                 <MonthSelectIcon name="chevron-left" />
               </MonthSelectButton>
 
               <Month>
-                {format(selectedDate, 'MMMM, yyyy', { locale: ptBR })}
+                {format(selectedDate, "MMMM, yyyy", { locale: ptBR })}
               </Month>
 
               <MonthSelectButton
-                onPress={() => handleChangeCurrentMonth('next')}
+                onPress={() => handleChangeCurrentMonth("next")}
               >
                 <MonthSelectIcon name="chevron-right" />
               </MonthSelectButton>
@@ -164,7 +168,7 @@ export function Summary() {
                 style={{
                   labels: {
                     fontSize: RFValue(18),
-                    fontWeight: 'bold',
+                    fontWeight: "bold",
                     fill: theme.colors.shape,
                   },
                 }}

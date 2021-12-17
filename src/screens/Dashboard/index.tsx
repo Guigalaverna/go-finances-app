@@ -53,19 +53,29 @@ export function Dashboard() {
   );
   const { logOut, user } = useAuth();
 
-  const AsyncStorage = useAsyncStorage("@gofinances:transactions");
+  const AsyncStorage = useAsyncStorage(
+    `@gofinances:transactions_user:${user?.id}`
+  );
   const theme = useTheme();
 
   function getLastTransactionDate(
     collection: DataListProps[],
     type: "income" | "outcome"
   ) {
+    const collectionFiltered = collection.filter(
+      transaction => transaction.type === type
+    );
+
+    if (collectionFiltered.length === 0) {
+      return 0;
+    }
+
     const lastTransaction = new Date(
       Math.max.apply(
         Math,
-        collection
-          .filter(transaction => transaction.type === type)
-          .map(transaction => new Date(transaction.date).getTime())
+        collectionFiltered.map(transaction =>
+          new Date(transaction.date).getTime()
+        )
       )
     );
 
@@ -132,21 +142,28 @@ export function Dashboard() {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: `Última entrada dia ${lastTransactionEntries}`,
+        lastTransaction:
+          lastTransactionEntries === 0
+            ? "Nenhuma entrada registrada"
+            : `Última entrada dia ${lastTransactionEntries}`,
       },
       outcomes: {
         amount: expensiveTotal.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: `Última saída dia ${lastTransactionExpensives}`,
+        lastTransaction:
+          lastTransactionExpensives === 0
+            ? "Nenhuma saída registrada"
+            : `Última saída dia ${lastTransactionExpensives}`,
       },
       total: {
         amount: total.toLocaleString("pt-BR", {
           style: "currency",
           currency: "BRL",
         }),
-        lastTransaction: totalInterval,
+        lastTransaction:
+          totalInterval === "01 a 0" ? "Nenhuma transação" : totalInterval,
       },
     });
 
