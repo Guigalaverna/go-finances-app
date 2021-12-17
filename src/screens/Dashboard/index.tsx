@@ -1,15 +1,15 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, Alert } from 'react-native';
-import { useAsyncStorage } from '@react-native-async-storage/async-storage';
+import React, { useCallback, useEffect, useState } from "react";
+import { ActivityIndicator, Alert } from "react-native";
+import { useAsyncStorage } from "@react-native-async-storage/async-storage";
 
-import { useFocusEffect } from '@react-navigation/native';
-import { useTheme } from 'styled-components';
+import { useFocusEffect } from "@react-navigation/native";
+import { useTheme } from "styled-components";
 
-import { HighlightCard } from '../../components/HighlightCard';
+import { HighlightCard } from "../../components/HighlightCard";
 import {
   TransactionCard,
   TransactionCardProps,
-} from '../../components/TransactionCard';
+} from "../../components/TransactionCard";
 
 import {
   Container,
@@ -27,7 +27,8 @@ import {
   TransactionList,
   LogoutButton,
   LoadContainer,
-} from './styles';
+} from "./styles";
+import { useAuth } from "../../hooks/useAuth";
 
 export interface DataListProps extends TransactionCardProps {
   id: string;
@@ -50,13 +51,14 @@ export function Dashboard() {
   const [highlightData, setHighlightData] = useState<HighlightData>(
     {} as HighlightData
   );
+  const { logOut, user } = useAuth();
 
-  const AsyncStorage = useAsyncStorage('@gofinances:transactions');
+  const AsyncStorage = useAsyncStorage("@gofinances:transactions");
   const theme = useTheme();
 
   function getLastTransactionDate(
     collection: DataListProps[],
-    type: 'income' | 'outcome'
+    type: "income" | "outcome"
   ) {
     const lastTransaction = new Date(
       Math.max.apply(
@@ -68,8 +70,8 @@ export function Dashboard() {
     );
 
     return `${lastTransaction.getDate()} de ${lastTransaction.toLocaleString(
-      'pt-BR',
-      { month: 'long' }
+      "pt-BR",
+      { month: "long" }
     )}`;
   }
 
@@ -82,21 +84,21 @@ export function Dashboard() {
 
     const transactionsFormatted: DataListProps[] = transactions.map(
       (item: DataListProps) => {
-        if (item.type === 'income') {
+        if (item.type === "income") {
           entriesTotal += Number(item.amount);
         } else {
           expensiveTotal += Number(item.amount);
         }
 
-        const amount = Number(item.amount).toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
+        const amount = Number(item.amount).toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
         });
 
-        const date = Intl.DateTimeFormat('pt-BR', {
-          day: '2-digit',
-          month: '2-digit',
-          year: '2-digit',
+        const date = Intl.DateTimeFormat("pt-BR", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
         }).format(new Date(item.date));
 
         return {
@@ -114,11 +116,11 @@ export function Dashboard() {
 
     const lastTransactionEntries = getLastTransactionDate(
       transactions,
-      'income'
+      "income"
     );
     const lastTransactionExpensives = getLastTransactionDate(
       transactions,
-      'outcome'
+      "outcome"
     );
     const totalInterval = `01 a ${lastTransactionExpensives}`;
 
@@ -126,23 +128,23 @@ export function Dashboard() {
 
     setHighlightData({
       incomes: {
-        amount: entriesTotal.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
+        amount: entriesTotal.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
         }),
         lastTransaction: `Última entrada dia ${lastTransactionEntries}`,
       },
       outcomes: {
-        amount: expensiveTotal.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
+        amount: expensiveTotal.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
         }),
         lastTransaction: `Última saída dia ${lastTransactionExpensives}`,
       },
       total: {
-        amount: total.toLocaleString('pt-BR', {
-          style: 'currency',
-          currency: 'BRL',
+        amount: total.toLocaleString("pt-BR", {
+          style: "currency",
+          currency: "BRL",
         }),
         lastTransaction: totalInterval,
       },
@@ -166,6 +168,10 @@ export function Dashboard() {
     loadTransactions();
   }
 
+  function handleLogout() {
+    logOut();
+  }
+
   useFocusEffect(
     useCallback(() => {
       loadTransactions();
@@ -183,16 +189,14 @@ export function Dashboard() {
           <Header>
             <UserWrapper>
               <UserInfo>
-                <Photo
-                  source={{ uri: 'https://github.com/Guigalaverna.png' }}
-                />
+                <Photo source={{ uri: user?.photo }} />
                 <User>
                   <UserGreeting>Olá,</UserGreeting>
-                  <UserName>Guilherme</UserName>
+                  <UserName>{user?.name}</UserName>
                 </User>
               </UserInfo>
 
-              <LogoutButton onPress={() => {}}>
+              <LogoutButton onPress={handleLogout}>
                 <Icon name="power" />
               </LogoutButton>
             </UserWrapper>

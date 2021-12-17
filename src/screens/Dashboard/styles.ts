@@ -1,13 +1,13 @@
-import styled from 'styled-components/native';
-import { FlatList } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { RFPercentage, RFValue } from 'react-native-responsive-fontsize';
+import styled from "styled-components/native";
+import { FlatList } from "react-native";
+import { Feather } from "@expo/vector-icons";
+import { RFPercentage, RFValue } from "react-native-responsive-fontsize";
 import {
   getBottomSpace,
   getStatusBarHeight,
-} from 'react-native-iphone-x-helper';
-import { BorderlessButton } from 'react-native-gesture-handler';
-import { DataListProps } from '.';
+} from "react-native-iphone-x-helper";
+import { BorderlessButton } from "react-native-gesture-handler";
+import { DataListProps } from ".";
 
 export const Container = styled.View`
   flex: 1;
@@ -29,7 +29,7 @@ export const UserWrapper = styled.View`
   width: 100%;
 
   padding: 0 24px;
-  margin-top: ${getStatusBarHeight() + RFValue(28)}px;
+  margin-top: ${RFValue(28)}px;
 
   flex-direction: row;
   justify-content: space-between;
@@ -94,6 +94,7 @@ export const Title = styled.Text`
   font-family: ${({ theme }) => theme.fonts.regular};
 
   margin-bottom: 16px;
+  margin-top: ${RFValue(30)}px;
 `;
 
 export const TransactionList = styled(

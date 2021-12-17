@@ -1,13 +1,13 @@
-import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Dashboard } from '../screens/Dashboard';
-import { Register } from '../screens/Register';
-import { DefaultNavigatorOptions } from '@react-navigation/native';
-import theme from '../global/styles/theme';
-import { Platform } from 'react-native';
+import React from "react";
+import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
+import { Dashboard } from "../screens/Dashboard";
+import { Register } from "../screens/Register";
+import { DefaultNavigatorOptions } from "@react-navigation/native";
+import theme from "../global/styles/theme";
+import { Platform } from "react-native";
 
-import { Feather } from '@expo/vector-icons';
-import { Summary } from '../screens/Summary';
+import { Feather } from "@expo/vector-icons";
+import { Summary } from "../screens/Summary";
 
 const { Navigator, Screen } = createBottomTabNavigator();
 
@@ -18,10 +18,10 @@ export function AppRoutes() {
         headerShown: false,
         tabBarActiveTintColor: theme.colors.secondary,
         tabBarInactiveTintColor: theme.colors.text,
-        tabBarLabelPosition: 'beside-icon',
+        tabBarLabelPosition: "beside-icon",
         tabBarStyle: {
           height: 72,
-          paddingVertical: Platform.OS === 'ios' ? 20 : 0,
+          paddingVertical: Platform.OS === "ios" ? 20 : 0,
         },
       }}
     >

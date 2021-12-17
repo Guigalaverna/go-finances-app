@@ -14,7 +14,7 @@ import Logo from "../../assets/logo.svg";
 import { RFValue } from "react-native-responsive-fontsize";
 import { SocialLoginButton } from "../../components/SocialLoginButton";
 import { useAuth } from "../../hooks/useAuth";
-import { Alert } from "react-native";
+import { Alert, Platform } from "react-native";
 
 export function SignIn() {
   const { signInWithGoogle, signInWithApple } = useAuth();
@@ -22,24 +22,24 @@ export function SignIn() {
   async function handleSignInWithGoogle() {
     try {
       await signInWithGoogle();
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert(
         "Erro ao fazer login",
         "Ocorreu um erro ao fazer login com Google"
       );
-      throw new Error(error);
+      console.error(error);
     }
   }
 
   async function handleSignInWithApple() {
     try {
       await signInWithApple();
-    } catch (error: any) {
+    } catch (error) {
       Alert.alert(
         "Erro ao fazer login",
         "Ocorreu um erro ao fazer login com Apple"
       );
-      throw new Error(error);
+      console.error(error);
     }
   }
   return (
@@ -50,7 +50,7 @@ export function SignIn() {
 
           <Title>
             Controle suas {"\n"}
-            finances de forma {"\n"}
+            finanças de forma {"\n"}
             muito simples.
           </Title>
         </TitleWrapper>
@@ -65,7 +65,12 @@ export function SignIn() {
             onPress={handleSignInWithGoogle}
             provider="google"
           />
-          <SocialLoginButton onPress={handleSignInWithApple} provider="apple" />
+          {Platform.OS === "ios" && (
+            <SocialLoginButton
+              onPress={handleSignInWithApple}
+              provider="apple"
+            />
+          )}
         </FooterContent>
       </Footer>
     </Container>
