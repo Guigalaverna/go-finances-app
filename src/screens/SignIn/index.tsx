@@ -31,6 +31,17 @@ export function SignIn() {
     }
   }
 
+  async function handleSignInWithApple() {
+    try {
+      await signInWithApple();
+    } catch (error: any) {
+      Alert.alert(
+        "Erro ao fazer login",
+        "Ocorreu um erro ao fazer login com Apple"
+      );
+      throw new Error(error);
+    }
+  }
   return (
     <Container>
       <Header>
@@ -54,7 +65,7 @@ export function SignIn() {
             onPress={handleSignInWithGoogle}
             provider="google"
           />
-          <SocialLoginButton onPress={signInWithApple} provider="apple" />
+          <SocialLoginButton onPress={handleSignInWithApple} provider="apple" />
         </FooterContent>
       </Footer>
     </Container>

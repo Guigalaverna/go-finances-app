@@ -1,6 +1,9 @@
 import React, { useContext } from "react";
 import * as AuthSession from "expo-auth-session";
 
+import * as AppleAuthentication from "expo-apple-authentication";
+import { useAsyncStorage } from "@react-native-async-storage/async-storage";
+
 interface ProviderProps {
   children: React.ReactNode;
 }
@@ -15,7 +18,7 @@ interface User {
   id: string;
   name: string;
   email: string;
-  avatar_url: string;
+  avatar_url: string | undefined;
 }
 
 interface GoogleLoginResponseData {
@@ -35,14 +38,15 @@ interface GoogleUserResponseData {
 
 export const Context = React.createContext({} as ContextData);
 
+const { GOOGLE_CLIENT_ID: clientId } = process.env;
+const { GOOGLE_REDIRECT_URI: redirectUri } = process.env;
+
 export function AuthProvider({ children }: ProviderProps) {
   const [user, setUser] = React.useState<User>({} as User);
+  const AsyncStorage = useAsyncStorage("@gofinances:user");
 
   async function signInWithGoogle() {
     try {
-      const clientId = process.env.GOOGLE_CLIENT_ID;
-      const redirectUri = process.env.GOOGLE_REDIRECT_URI;
-
       const responseType = "token";
       const scope = encodeURI("profile email");
 
@@ -63,6 +67,8 @@ export function AuthProvider({ children }: ProviderProps) {
           avatar_url: userInfo.picture,
           name: userInfo.given_name,
         });
+
+        await AsyncStorage.setItem(JSON.stringify(user));
       } else {
         throw new Error();
       }
@@ -74,6 +80,24 @@ export function AuthProvider({ children }: ProviderProps) {
 
   async function signInWithApple() {
     try {
+      const credentials = await AppleAuthentication.signInAsync({
+        requestedScopes: [
+          AppleAuthentication.AppleAuthenticationScope.FULL_NAME,
+          AppleAuthentication.AppleAuthenticationScope.EMAIL,
+        ],
+      });
+
+      if (credentials) {
+        const user: User = {
+          id: credentials.identityToken!,
+          name: credentials.fullName!.givenName!,
+          email: credentials.email!,
+          avatar_url: undefined,
+        };
+
+        setUser(user);
+        await AsyncStorage.setItem(JSON.stringify(user));
+      }
     } catch (error: any) {
       console.error(error);
       throw new Error(error);
