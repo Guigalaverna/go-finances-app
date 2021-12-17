@@ -40,9 +40,9 @@ export function AuthProvider({ children }: ProviderProps) {
 
   async function signInWithGoogle() {
     try {
-      const clientId =
-        "480574547344-ee9bkosk08cugbosoi9rg8v8vvaq1occ.apps.googleusercontent.com";
-      const redirectUri = "https://auth.expo.io/@guigalaverna/gofinances";
+      const clientId = process.env.GOOGLE_CLIENT_ID;
+      const redirectUri = process.env.GOOGLE_REDIRECT_URI;
+
       const responseType = "token";
       const scope = encodeURI("profile email");
 
